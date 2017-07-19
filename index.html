@@ -1,0 +1,113 @@
+<html>
+    <head>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/3.14.2/math.min.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+        <script src="https://wzrd.in/standalone/function-plot@1.14.0"></script>
+
+        <style type="text/css">
+        form {
+            display: table;
+            margin-bottom: 20px;
+        }
+        p {
+            display: table-row;
+        }
+        label {
+            display: table-cell;
+        }
+        input[type=text] {
+            margin: 2px 10px;
+            width: 50px;
+            padding: 6px;
+        }
+        input {
+            padding: 4px;
+            display: table-cell;
+            font-family: sans-serif;
+            font-size: 11pt;
+        }
+        /*
+        #plot {
+            margin: auto;
+            width: 50%;
+            display: block;
+        }*/
+        </style>
+    </head>
+
+<body>
+    <div class="container">
+    <form id="form">
+        <p>
+          <label for="tv">Terminal velocity (mph): </label>
+          <input type="text" id="tv_id" value="120"></br>
+        </p>
+        <p>
+          <label for="Vair">Jump run airspeed (kts): </label>
+          <input type="text" id="Vair_id" value="100"></br>
+        </p>
+        <p>
+          <label for="m">Jumper mass (lbs): </label>
+          <input type="text" id="m_id" value="180"></br>
+        </p>
+        <p>
+          <label for="Vw">Winds aloft (kts): </label>
+          <input type="text" id="Vw_id" value="20"></br>
+        </p>
+        <p>
+          <label for="t">Time (s): </label>
+          <input type="text" id="t_id" value="30"></br>
+        </p>
+        <p>
+          <input type="submit" value="Go!">
+        </p>
+    </form>
+    </div>
+    <div id="plot">
+    </div>
+    <script>
+        function draw() {
+        var tv = document.getElementById('tv_id').value * 0.44704; //53.6;
+        var Vair = document.getElementById('Vair_id').value * 0.514444; //50;
+        var g = 9.8;
+        var m = document.getElementById('m_id').value * 0.453592; //80;
+        var Vw = document.getElementById('Vw_id').value * -0.514444; //-15;
+        var t = parseInt(document.getElementById('t_id').value);
+        
+        var F = m*g;
+        var c = F / (tv**2);
+        var A = 1/c * (m/Vair);
+
+        var x_offset = -m*math.log(A)/c
+        
+
+        x_func = '('+m+'*log('+A+'+t)/'+c+' + '+Vw+'*t + '+x_offset+')*3.28084'
+        y_func = '('+-m+'*log(cosh(t*sqrt(('+c*g+')/'+m+')))/'+c+')*3.28084 + 13500'
+
+        var instance = functionPlot({
+            target: '#plot',
+            grid: true,
+            yAxis: {domain: [-5, 5]},
+            xAxis: {domain: [-3, 3]},
+            data: [{
+                nSamples: 500,
+                x: x_func,
+                y: y_func,
+                fnType: 'parametric',
+                sampler: 'builtIn', 
+                graphType: 'polyline',
+                range: [0, t]
+                }]
+            });
+
+        var x_max = math.abs(m*math.log(A+t)/c + Vw*t + x_offset)*3.28084;
+        instance.programmaticZoom([-x_max*1.25, x_max*1.25], [8000, 14000])
+        }
+        
+        document.getElementById('form').onsubmit = function (event) {
+            event.preventDefault();
+            draw();
+        };
+    </script>
+</body>
+</html>
