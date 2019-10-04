@@ -67,11 +67,11 @@
     </div>
     <script>
         function draw() {
-        var tv = document.getElementById('tv_id').value * 0.44704; //53.6;
-        var Vair = document.getElementById('Vair_id').value * 0.514444; //50;
+        var tv = document.getElementById('tv_id').value * 0.44704; // mph to m/s
+        var Vair = document.getElementById('Vair_id').value * 0.514444; // kts to m/s
         var g = 9.8;
-        var m = document.getElementById('m_id').value * 0.453592; //80;
-        var Vw = document.getElementById('Vw_id').value * -0.514444; //-15;
+        var m = document.getElementById('m_id').value * 0.453592; // lbs to kg
+        var Vw = document.getElementById('Vw_id').value * -0.514444; // kts to m/s (blowing against jump run)
         var t = parseInt(document.getElementById('t_id').value);
         
         var F = m*g;
@@ -101,7 +101,8 @@
             });
 
         var x_max = math.abs(m*math.log(A+t)/c + Vw*t + x_offset)*3.28084;
-        instance.programmaticZoom([-x_max*1.25, x_max*1.25], [8000, 14000])
+        var y_min = (-m*math.log(math.cosh(t*math.sqrt((c*g)/m)))/c)*3.28084 + 13500;
+        instance.programmaticZoom([-x_max*1.25, x_max*1.25], [y_min - 500, 14000]);
         }
         
         document.getElementById('form').onsubmit = function (event) {
